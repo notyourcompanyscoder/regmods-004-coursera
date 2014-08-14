@@ -1,0 +1,145 @@
+---
+title: "MT is Better than AT for Fuel Efficiency (MPG)"
+<<<<<<< HEAD
+author: "Wenzhe LAI, B.S. of Statistics and Applied Economics"
+output: html_document
+=======
+output: pdf_document
+>>>>>>> b9b1d6df36bdddabe5adc338e2231626e67e0a48
+---
+## Exclusive Summary and Synopsis ##    
+This report tries to answer these two questions.     
+- *"Is an automatic or manual transmission better for MPG"*      
+- *"Quantify the MPG difference between automatic and manual transmissions"*     
+By exploring into some data, We found out that the fuel efficiency (Miles/(US) gallon, MPG) is **influnced** by the automaticity of the transmissions system.  
+This essay will show all steps during my analysis. All the details will be shown in the 2-page report. In order to make this report reproducible, the codes, graphs and results will be shown on the appendix.
+
+## Part1. Getting and Cleaning Data ##    
+In this step, I'll get the dataset `mtcars`. `mtcars` dataset is an embedded dataset in R `datasets` package. It's extracted from the 1974 *Motor Trend* US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles.     
+To make the analysis more flexible, we will firstly factorize the discrete variables with `factor` function.  
+```{r echo=FALSE}
+data(mtcars)
+mtcars.fact = mtcars
+mtcars.fact$cyl <- factor(mtcars$cyl); mtcars.fact$vs <- factor(mtcars$vs);
+mtcars.fact$gear <- factor(mtcars$gear); mtcars.fact$am <- factor(mtcars$am); mtcars.fact$carb <- factor(mtcars$carb);
+```
+
+## Part2. Exploratory Data Analysis ##    
+<<<<<<< HEAD
+In this step, We may take a glimpse of the mtcars data. First use the `cor` function to get the  correlations between `mpg` and each of other variables. Also we will draw a plot Figure 1 of correlations between different variables.  
+=======
+In this step, We may take a glimpse of the mtcars data. First use the `pairs` function to get the  correlations between `mpg` and each of other variables.   
+>>>>>>> b9b1d6df36bdddabe5adc338e2231626e67e0a48
+**Table 1. The correlations between the `mpg and other variables**  
+```{r echo=FALSE}
+round(cor(mtcars$mpg, y = mtcars[, -1]), 3)
+```
+<<<<<<< HEAD
+Second we will draw the box plot Figure 2 of the `mpg` variable against the influence by factor `am`.  
+*Figure 1 and Figure 2 will be shown in the Appendix.*      
+=======
+Second we will draw the box plot of the `mpg` variable against the influence by factor `am`.  
+*Figure 1 will be shown in the Appendix.*      
+>>>>>>> b9b1d6df36bdddabe5adc338e2231626e67e0a48
+As is shown in the *Table 1* and *Figure 1*, we can draw an intuitive conclusion that `am` influences the `mpg` variable. Then we will show and quantify this conclusion.   
+
+## Part3. Inference with the Models ##    
+In this part we will analysis deeply into the dataset. Firstly test the `am`'s influence toward the grouped `mpg` means. Secondly find and select the optimal linear regression model.  
+
+### One Way ANOVA, Test of significance of the causality between the `am` and `mpg` ###
+ANOVA is used to analyze a factor's influence towards the grouped outputs.
+ANOVA is based on the assumption of homogeneity of variances. Let's test it first.
+```{r echo=TRUE}
+## The P-value is:
+bartlett.test(mpg ~ am, data = mtcars.fact)$p.value
+```
+So we cannot reject the assumption of homogeneity of variances. So we will test the factor `am` with ANOVA next.  
+**Table 2. ANOVA Table**
+```{r echo=FALSE}
+summary(aov(mpg ~ am, data = mtcars.fact))
+```
+The p-value is significantly small, thus we will draw to the conclusion that the variable `am` influences the mean of different cars' MPG.
+
+### Linear Regression Model Selection ###
+In this sub-part, we will firstly fit the linear models for `mpg` against all other variables, and use the `step` function to delect some variable to find the optimal linear models. 
+```{r results='hide'}
+fit.whole <- lm(mpg ~ ., data = mtcars.fact)
+fit.optimal <- step(fit.whole, direction = 'both')
+```
+```{r}
+print(fit.optimal$call)
+```
+As is printed above, the optimal linear models includes the numeric argument `hp`, `wt`, and factoral argument `cyl`, `am`.  
+Now we will test different models with some combinations of arguments `hp` `wt` `cyl` and `am`. We will use the $R^2$ criterion.  
+```{r results='hide'}
+fit.hpwt <- lm(mpg ~ hp + wt, data = mtcars.fact)
+fit.hpwt.cyl <- lm(mpg ~ hp + wt + cyl, data = mtcars.fact)
+```
+```{r echo=FALSE}
+adj.r2 <- c(summary(fit.hpwt)$adj.r.squared, summary(fit.hpwt.cyl)$adj.r.squared, summary(fit.optimal)$adj.r.squared)
+names(adj.r2) <- c("hp + wt", "hp + wt + cyl", "hp + wt + cyl + am")
+```
+**Table 3. The $R^2$ of Each Linear Models**
+```{r echo=FALSE}
+adj.r2
+```
+According to the table, the linear model fitted with the variable `am` can fit better, compared to several other models. Thus `am` has the influential effects towards the `mpg`.
+
+## Part4. Diagnostics of the Optimal Linear Models ##    
+At the beginning, we will draw some graphs of the optimal regression model. These graphs contains the **Residual vs Fitted Graph**, **Q-Q Graph**, **Scale-Location Graph** and the **Residuals vs Leverage Graph**.    
+<<<<<<< HEAD
+*Figure 3 is shown on the Appendix*    
+=======
+*Figure 2 is shown on the Appendix*    
+>>>>>>> b9b1d6df36bdddabe5adc338e2231626e67e0a48
+Take a glimpse at the Figure 2 four graphs, we can find out that some models is not quite obey the regression model. Obviously, they are **Toyota Corolla** and **Fiat 128**. The Residuals graph shows that the residuals of the two models is quite large, and the Normal Q-Q Plot shows that their residual is doesn't follow the Normal Distribution.   
+Regardless of the two special cases, the conclusion that the influence of the `am` towards `mpg` is significant is easy to find out.  
+
+
+## Appendix ##
+  
+<<<<<<< HEAD
+```{r echo=FALSE}
+library(corrplot)
+```
+
+###Figure 1 from the Part 2###
+```{r}
+M <- cor(mtcars)
+corrplot.mixed(M, lower = "number", upper = "circle", title = "Correlations between Different Variances")
+```
+   
+
+###Figure 2 from the Part 2###
+**Figure 2. The box plots of the `mpg` variable against the influence by factor `am`**
+```{r}
+boxplot(mpg ~ am, data = mtcars, names = c("Automatic", "Manual"))
+```
+
+
+###Figure 3 from the Part 4###
+**Figure 3. Diagnostical Plots of the Optimal Linear Model**
+=======
+###Figure 1 from the Part 2###
+```{r}
+boxplot(mpg ~ am, data = mtcars, names = c("Automatic", "Manual"))
+```
+**Figure 1. The box plots of the `mpg` variable against the influence by factor `am`**
+
+###Figure 2 from the Part 4###
+>>>>>>> b9b1d6df36bdddabe5adc338e2231626e67e0a48
+```{r fig.height=7}
+par(mfrow = c(2,2))
+plot(fit.optimal)
+```
+<<<<<<< HEAD
+    
+
+=======
+**Figure 4. Diagnostical Plots of the Optimal Linear Model**
+
+**Table. The Original Dataset of `mtcars`**
+```{r echo=FALSE}
+mtcars
+```
+>>>>>>> b9b1d6df36bdddabe5adc338e2231626e67e0a48
